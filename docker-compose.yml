@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # Frontend - Vue.js SPA
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - auth-service
+      - blog-service
+      - portfolio-service
+    networks:
+      - app-network
+
+  # Auth Service - Node.js
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=auth_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - JWT_EXPIRES_IN=7d
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    volumes:
+      - ./backend/auth-service/uploads:/app/uploads
+
+  # Blog Service - Java Spring Boot with GraphQL
+  blog-service:
+    build:
+      context: ./backend/blog-service
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongodb
+      - SPRING_DATA_MONGODB_PORT=27017
+      - SPRING_DATA_MONGODB_DATABASE=blog_db
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  # Portfolio Service - Kotlin Spring Boot
+  portfolio-service:
+    build:
+      context: ./backend/portfolio-service
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=portfolio_db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  # PostgreSQL Database for Auth Service
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=auth_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # MongoDB for Blog Service
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
+  # MySQL for Portfolio Service
+  mysql:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=portfolio_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    command: --default-authentication-plugin=mysql_native_password
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  mysql_data:
