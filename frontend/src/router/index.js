@@ -57,6 +57,12 @@ const router = createRouter({
       name: 'admin-portfolio',
       component: () => import('../views/admin/PortfolioManager.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/widgets',
+      name: 'admin-widgets',
+      component: () => import('../views/admin/WidgetManager.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })

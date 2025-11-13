@@ -9,6 +9,17 @@
       </div>
     </section>
 
+    <!-- Featured Widgets Section -->
+    <section v-if="!widgetLoading && activeWidgets.length > 0" class="featured-widgets">
+      <WidgetGrid
+        :widgets="activeWidgets"
+        :loading="widgetLoading"
+        :error="widgetError"
+        title="Featured Topics"
+        subtitle="Explore our featured content and latest articles"
+      />
+    </section>
+
     <section class="featured-posts">
       <h2>Latest Blog Posts</h2>
       <div v-if="loading" class="loading">Loading...</div>
@@ -29,16 +40,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBlogStore } from '../stores/blog'
+import { useWidgetStore } from '../stores/widget'
+import WidgetGrid from '../components/WidgetGrid.vue'
 
 const blogStore = useBlogStore()
+const widgetStore = useWidgetStore()
+
 const recentPosts = ref([])
 const loading = ref(false)
 
+const activeWidgets = computed(() => widgetStore.sortedActiveWidgets)
+const widgetLoading = computed(() => widgetStore.loading)
+const widgetError = computed(() => widgetStore.error)
+
 onMounted(async () => {
+  // Fetch widgets and blog posts in parallel
   loading.value = true
-  await blogStore.fetchPosts({ published: true, limit: 4 })
+  await Promise.all([
+    widgetStore.fetchActiveWidgets(),
+    blogStore.fetchPosts({ published: true, limit: 4 })
+  ])
   recentPosts.value = blogStore.posts.slice(0, 4)
   loading.value = false
 })
@@ -76,6 +99,10 @@ const formatDate = (date) => {
   display: flex;
   gap: 1rem;
   justify-content: center;
+}
+
+.featured-widgets {
+  margin-bottom: 4rem;
 }
 
 .featured-posts {

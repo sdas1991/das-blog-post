@@ -3,12 +3,20 @@ type Query {
     post(id: ID!): Post
     categories: [String!]!
     tags: [String!]!
+    widgets: [Widget!]!
+    activeWidgets: [Widget!]!
+    widget(id: ID!): Widget
+    widgetsByPostId(postId: ID!): [Widget!]!
 }
 
 type Mutation {
     createPost(input: PostInput!): Post!
     updatePost(id: ID!, input: PostInput!): Post!
     deletePost(id: ID!): Boolean!
+    createWidget(input: WidgetInput!): Widget!
+    updateWidget(id: ID!, input: WidgetInput!): Widget!
+    deleteWidget(id: ID!): Boolean!
+    reorderWidgets(widgetIds: [ID!]!): [Widget!]!
 }
 
 type Post {
@@ -49,4 +57,43 @@ input PostFilters {
     tag: String
     search: String
     limit: Int
+}
+
+type Widget {
+    id: ID!
+    title: String!
+    shortDescription: String!
+    imageUrl: String!
+    postId: String
+    displayOrder: Int!
+    active: Boolean!
+    config: WidgetConfig
+    createdAt: String!
+    updatedAt: String!
+}
+
+type WidgetConfig {
+    layout: String
+    backgroundColor: String
+    textColor: String
+    apiEndpoint: String
+    linkUrl: String
+}
+
+input WidgetInput {
+    title: String!
+    shortDescription: String!
+    imageUrl: String!
+    postId: String
+    displayOrder: Int
+    active: Boolean
+    config: WidgetConfigInput
+}
+
+input WidgetConfigInput {
+    layout: String
+    backgroundColor: String
+    textColor: String
+    apiEndpoint: String
+    linkUrl: String
 }

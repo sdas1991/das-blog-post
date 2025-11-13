@@ -217,6 +217,22 @@ export const blogService = {
     `
     const response = await blogApi.post('/graphql', { query })
     return response.data.data.tags
+  },
+
+  async uploadWidgetImage(file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await blogApi.post('/upload/widget-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return response.data
+  },
+
+  async deleteWidgetImage(imageUrl) {
+    const response = await blogApi.delete('/upload/widget-image', {
+      params: { url: imageUrl }
+    })
+    return response.data
   }
 }
 
@@ -235,6 +251,182 @@ export const commentService = {
   async deleteComment(commentId) {
     const response = await authApi.delete(`/comments/${commentId}`)
     return response.data
+  }
+}
+
+// Widget API methods (GraphQL)
+export const widgetService = {
+  async getWidgets() {
+    const query = `
+      query GetWidgets {
+        widgets {
+          id
+          title
+          shortDescription
+          imageUrl
+          postId
+          displayOrder
+          active
+          config {
+            layout
+            backgroundColor
+            textColor
+            apiEndpoint
+            linkUrl
+          }
+          createdAt
+          updatedAt
+        }
+      }
+    `
+    const response = await blogApi.post('/graphql', { query })
+    return response.data.data.widgets
+  },
+
+  async getActiveWidgets() {
+    const query = `
+      query GetActiveWidgets {
+        activeWidgets {
+          id
+          title
+          shortDescription
+          imageUrl
+          postId
+          displayOrder
+          active
+          config {
+            layout
+            backgroundColor
+            textColor
+            apiEndpoint
+            linkUrl
+          }
+          createdAt
+          updatedAt
+        }
+      }
+    `
+    const response = await blogApi.post('/graphql', { query })
+    return response.data.data.activeWidgets
+  },
+
+  async getWidget(id) {
+    const query = `
+      query GetWidget($id: ID!) {
+        widget(id: $id) {
+          id
+          title
+          shortDescription
+          imageUrl
+          postId
+          displayOrder
+          active
+          config {
+            layout
+            backgroundColor
+            textColor
+            apiEndpoint
+            linkUrl
+          }
+          createdAt
+          updatedAt
+        }
+      }
+    `
+    const response = await blogApi.post('/graphql', {
+      query,
+      variables: { id }
+    })
+    return response.data.data.widget
+  },
+
+  async createWidget(widgetData) {
+    const mutation = `
+      mutation CreateWidget($input: WidgetInput!) {
+        createWidget(input: $input) {
+          id
+          title
+          shortDescription
+          imageUrl
+          postId
+          displayOrder
+          active
+          config {
+            layout
+            backgroundColor
+            textColor
+            apiEndpoint
+            linkUrl
+          }
+          createdAt
+          updatedAt
+        }
+      }
+    `
+    const response = await blogApi.post('/graphql', {
+      query: mutation,
+      variables: { input: widgetData }
+    })
+    return response.data.data.createWidget
+  },
+
+  async updateWidget(id, widgetData) {
+    const mutation = `
+      mutation UpdateWidget($id: ID!, $input: WidgetInput!) {
+        updateWidget(id: $id, input: $input) {
+          id
+          title
+          shortDescription
+          imageUrl
+          postId
+          displayOrder
+          active
+          config {
+            layout
+            backgroundColor
+            textColor
+            apiEndpoint
+            linkUrl
+          }
+          createdAt
+          updatedAt
+        }
+      }
+    `
+    const response = await blogApi.post('/graphql', {
+      query: mutation,
+      variables: { id, input: widgetData }
+    })
+    return response.data.data.updateWidget
+  },
+
+  async deleteWidget(id) {
+    const mutation = `
+      mutation DeleteWidget($id: ID!) {
+        deleteWidget(id: $id)
+      }
+    `
+    const response = await blogApi.post('/graphql', {
+      query: mutation,
+      variables: { id }
+    })
+    return response.data.data.deleteWidget
+  },
+
+  async reorderWidgets(widgetIds) {
+    const mutation = `
+      mutation ReorderWidgets($widgetIds: [ID!]!) {
+        reorderWidgets(widgetIds: $widgetIds) {
+          id
+          displayOrder
+        }
+      }
+    `
+    const response = await blogApi.post('/graphql', {
+      query: mutation,
+      variables: { widgetIds }
+    })
+    return response.data.data.reorderWidgets
   }
 }
 

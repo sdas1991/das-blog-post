@@ -4,6 +4,7 @@
 
     <div class="dashboard-actions">
       <router-link to="/admin/blog/new" class="btn btn-primary">Create New Post</router-link>
+      <router-link to="/admin/widgets" class="btn btn-secondary">Manage Widgets</router-link>
       <router-link to="/admin/portfolio" class="btn btn-secondary">Manage Portfolio</router-link>
     </div>
 
