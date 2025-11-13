@@ -6,6 +6,42 @@ A full-stack blog and portfolio platform with microservices architecture, built 
 
 This platform consists of:
 
+```
+┌─────────┐     ┌──────────────┐     ┌─────────────┐
+│ Client  │────▶│  Frontend    │────▶│ API Gateway │
+│(Browser)│     │   (Vue.js)   │     │  (Python)   │
+└─────────┘     │  Port: 3000  │     │  Port: 8000 │
+                └──────────────┘     └──────┬──────┘
+                                            │
+                                     ┌──────▼──────┐
+                                     │    Redis    │
+                                     │(Rate Limit) │
+                                     └─────────────┘
+                                            │
+                        ┌───────────────────┼───────────────────┐
+                        │                   │                   │
+                   ┌────▼──────┐     ┌─────▼────┐     ┌───────▼────┐
+                   │   Auth    │     │   Blog   │     │ Portfolio  │
+                   │  Service  │     │  Service │     │  Service   │
+                   │  (Node.js)│     │  (Java)  │     │  (Kotlin)  │
+                   │Port: 3001 │     │Port: 3002│     │Port: 3003  │
+                   └─────┬─────┘     └─────┬────┘     └──────┬─────┘
+                         │                 │                  │
+                   ┌─────▼─────┐     ┌────▼─────┐     ┌──────▼──────┐
+                   │PostgreSQL │     │ MongoDB  │     │   MySQL     │
+                   └───────────┘     └──────────┘     └─────────────┘
+```
+
+### API Gateway (Python FastAPI)
+- **Port**: 8000
+- **Technology**: Python + FastAPI + Redis
+- **Responsibilities**:
+  - Request routing to microservices
+  - Rate limiting (100 req/60s per IP)
+  - Request/Response logging
+  - Error handling and timeouts
+  - Health monitoring
+
 ### Frontend
 - **Technology**: Vue.js 3 with Vite
 - **Features**:
@@ -20,16 +56,18 @@ This platform consists of:
 - **Port**: 3001
 - **Technology**: Node.js + Express
 - **Database**: PostgreSQL
+- **Build Tool**: npm
 - **Responsibilities**:
   - User registration and login (JWT)
   - Comment system for blog posts
-  - File uploads (profile pics, assets)
+  - File uploads (GridFS/S3 based on mode)
   - User management
 
 ### Microservice 2: Blog Service (Java Spring Boot)
 - **Port**: 3002
 - **Technology**: Java 17 + Spring Boot + GraphQL
 - **Database**: MongoDB
+- **Build Tool**: Gradle (Groovy DSL)
 - **Responsibilities**:
   - Blog post CRUD operations
   - Content search and filtering
@@ -40,6 +78,7 @@ This platform consists of:
 - **Port**: 3003
 - **Technology**: Kotlin + Spring Boot
 - **Database**: MySQL
+- **Build Tool**: Gradle (Groovy DSL)
 - **Responsibilities**:
   - Project showcase CRUD
   - Skills and experience data
@@ -51,7 +90,8 @@ This platform consists of:
 - Docker and Docker Compose
 - Node.js 20+ (for local frontend development)
 - Java 17+ (for local backend development)
-- Maven 3.9+ (for building Java/Kotlin services)
+- Gradle 8.5+ (for building Java/Kotlin services)
+- Python 3.11+ (for API Gateway development)
 
 ## Application Modes
 
@@ -102,20 +142,26 @@ docker-compose up --build
 ```
 
 This will start:
-- Frontend: http://localhost:3000
-- Auth Service: http://localhost:3001
-- Blog Service: http://localhost:3002
+- **API Gateway**: http://localhost:8000 (Rate limiting & routing)
+  - Health check: http://localhost:8000/health
+- **Frontend**: http://localhost:3000
+- **Auth Service**: http://localhost:3001
+- **Blog Service**: http://localhost:3002
   - GraphiQL: http://localhost:3002/graphiql
-- Portfolio Service: http://localhost:3003
-- PostgreSQL: localhost:5432
-- MongoDB: localhost:27017 (also used for file storage in dev mode)
-- MySQL: localhost:3306
+- **Portfolio Service**: http://localhost:3003
+- **PostgreSQL**: localhost:5432
+- **MongoDB**: localhost:27017 (Blog + File storage in dev mode)
+- **MySQL**: localhost:3306
+- **Redis**: localhost:6379 (Rate limiting)
 
 ### 4. Access the Application
 
 - **Frontend**: http://localhost:3000
+- **API Gateway**: http://localhost:8000 (all API requests route through here)
 - **Admin Panel**: http://localhost:3000/admin (after login)
-- **GraphiQL Playground**: http://localhost:3002/graphiql
+- **GraphiQL Playground**: http://localhost:3002/graphiql (direct access)
+
+**Note**: All frontend API requests automatically go through the API Gateway for rate limiting and routing.
 
 ### Running in Release Mode
 
@@ -590,8 +636,15 @@ DAS - Full Stack Developer
 ## Tech Stack Summary
 
 - **Frontend**: Vue.js 3, Vite, Pinia, Vue Router, TipTap, Axios
-- **Auth Service**: Node.js, Express, PostgreSQL, JWT, Bcrypt, Multer
-- **Blog Service**: Java 17, Spring Boot, GraphQL, MongoDB
-- **Portfolio Service**: Kotlin, Spring Boot, MySQL, JPA
-- **Infrastructure**: Docker, Docker Compose
-- **Cloud Ready**: AWS S3, CloudFront, RDS, EC2, ECS
+- **API Gateway**: Python 3.11, FastAPI, Redis, httpx
+- **Auth Service**: Node.js, Express, PostgreSQL, JWT, Bcrypt, MongoDB (GridFS)
+- **Blog Service**: Java 17, Spring Boot, GraphQL, MongoDB, Gradle
+- **Portfolio Service**: Kotlin, Spring Boot, MySQL, JPA, Gradle
+- **Infrastructure**: Docker, Docker Compose, Redis
+- **Cloud Ready**: AWS S3, CloudFront, RDS, EC2, ECS, ElastiCache
+
+## Additional Documentation
+
+- **[AWS Deployment Guide](AWS_DEPLOYMENT.md)** - Complete guide for deploying to AWS Free Tier
+- **[Mode Configuration](MODE_CONFIGURATION.md)** - Detailed dev/release mode documentation
+- **[API Gateway README](backend/api-gateway/README.md)** - API Gateway documentation
