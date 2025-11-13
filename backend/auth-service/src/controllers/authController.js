@@ -103,7 +103,7 @@ const login = async (req, res) => {
 const getCurrentUser = async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, email, avatar, created_at FROM users WHERE id = $1',
+      'SELECT id, name, email, avatar, bio, role, is_guest_author, social_links, created_at FROM users WHERE id = $1',
       [req.user.userId]
     )
 
@@ -118,4 +118,115 @@ const getCurrentUser = async (req, res) => {
   }
 }
 
-module.exports = { register, login, getCurrentUser }
+const updateProfile = async (req, res) => {
+  try {
+    const { name, bio, avatar, social_links } = req.body
+    const userId = req.user.userId
+
+    // Build dynamic update query
+    const updates = []
+    const values = []
+    let paramCount = 1
+
+    if (name !== undefined) {
+      updates.push(`name = $${paramCount}`)
+      values.push(name)
+      paramCount++
+    }
+
+    if (bio !== undefined) {
+      updates.push(`bio = $${paramCount}`)
+      values.push(bio)
+      paramCount++
+    }
+
+    if (avatar !== undefined) {
+      updates.push(`avatar = $${paramCount}`)
+      values.push(avatar)
+      paramCount++
+    }
+
+    if (social_links !== undefined) {
+      updates.push(`social_links = $${paramCount}`)
+      values.push(JSON.stringify(social_links))
+      paramCount++
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ message: 'No fields to update' })
+    }
+
+    updates.push(`updated_at = NOW()`)
+    values.push(userId)
+
+    const query = `
+      UPDATE users
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING id, name, email, avatar, bio, role, is_guest_author, social_links, created_at, updated_at
+    `
+
+    const result = await pool.query(query, values)
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Update profile error:', error)
+    res.status(500).json({ message: 'Failed to update profile' })
+  }
+}
+
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.params.userId
+
+    const result = await pool.query(
+      'SELECT id, name, email, avatar, bio, is_guest_author, social_links, created_at FROM users WHERE id = $1',
+      [userId]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    res.json(result.rows[0])
+  } catch (error) {
+    console.error('Get user profile error:', error)
+    res.status(500).json({ message: 'Failed to get user profile' })
+  }
+}
+
+const applyForGuestAuthor = async (req, res) => {
+  try {
+    const userId = req.user.userId
+
+    const result = await pool.query(
+      'UPDATE users SET is_guest_author = TRUE WHERE id = $1 RETURNING id, name, email, is_guest_author',
+      [userId]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    res.json({
+      message: 'Guest author status granted',
+      user: result.rows[0]
+    })
+  } catch (error) {
+    console.error('Apply for guest author error:', error)
+    res.status(500).json({ message: 'Failed to apply for guest author status' })
+  }
+}
+
+module.exports = {
+  register,
+  login,
+  getCurrentUser,
+  updateProfile,
+  getUserProfile,
+  applyForGuestAuthor
+}

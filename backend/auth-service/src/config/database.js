@@ -19,9 +19,22 @@ const initDatabase = async () => {
         email VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         avatar VARCHAR(500),
+        bio TEXT,
+        role VARCHAR(50) DEFAULT 'user',
+        is_guest_author BOOLEAN DEFAULT FALSE,
+        social_links JSONB,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `)
+
+    // Add columns to existing users table if they don't exist
+    await client.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS bio TEXT,
+      ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'user',
+      ADD COLUMN IF NOT EXISTS is_guest_author BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS social_links JSONB
     `)
 
     // Create comments table

@@ -12,5 +12,9 @@ public class PostInput {
     private String content;
     private List<String> tags;
     private String category;
+    private String module;
     private Boolean published;
+    private Integer weight;
+    private Boolean isGuestPost;
+    private String guestAuthorEmail;
 }

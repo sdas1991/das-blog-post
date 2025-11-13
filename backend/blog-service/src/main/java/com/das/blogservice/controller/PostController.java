@@ -68,6 +68,21 @@ public class PostController {
         return postService.getAllTags();
     }
 
+    @QueryMapping
+    public List<String> modules() {
+        return postService.getAllModules();
+    }
+
+    @QueryMapping
+    public List<Post> trendingPosts(@Argument Integer limit) {
+        return postService.getTrendingPosts(limit);
+    }
+
+    @QueryMapping
+    public List<Post> guestPosts(@Argument String status) {
+        return postService.getGuestPosts(status);
+    }
+
     @MutationMapping
     public Post createPost(@Argument PostInput input) {
         // In a real application, you would get the author from the JWT token
@@ -83,5 +98,21 @@ public class PostController {
     @MutationMapping
     public Boolean deletePost(@Argument String id) {
         return postService.deletePost(id);
+    }
+
+    @MutationMapping
+    public Post reactToPost(@Argument String postId, @Argument String reactionType,
+                           @Argument String emoji, @Argument Integer userId) {
+        return postService.reactToPost(postId, reactionType, emoji, userId);
+    }
+
+    @MutationMapping
+    public Post approveGuestPost(@Argument String postId) {
+        return postService.approveGuestPost(postId);
+    }
+
+    @MutationMapping
+    public Post rejectGuestPost(@Argument String postId) {
+        return postService.rejectGuestPost(postId);
     }
 }

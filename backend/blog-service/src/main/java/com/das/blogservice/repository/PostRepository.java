@@ -18,13 +18,26 @@ public interface PostRepository extends MongoRepository<Post, String> {
 
     List<Post> findByTagsContaining(String tag);
 
+    List<Post> findByModule(String module);
+
+    List<Post> findByModuleAndPublished(String module, Boolean published);
+
+    List<Post> findByIsGuestPost(Boolean isGuestPost);
+
+    List<Post> findByGuestAuthorStatus(String status);
+
     @Query("{ 'title': { $regex: ?0, $options: 'i' } }")
     List<Post> searchByTitle(String keyword);
 
-    @Query("{ $or: [ { 'title': { $regex: ?0, $options: 'i' } }, { 'content': { $regex: ?0, $options: 'i' } } ] }")
+    @Query("{ $or: [ { 'title': { $regex: ?0, $options: 'i' } }, { 'content': { $regex: ?0, $options: 'i' } }, { 'excerpt': { $regex: ?0, $options: 'i' } } ] }")
     List<Post> searchByTitleOrContent(String keyword);
+
+    @Query("{ $text: { $search: ?0 } }")
+    List<Post> fullTextSearch(String searchTerm);
 
     List<Post> findAllByOrderByPublishedAtDesc();
 
     List<Post> findByPublishedOrderByPublishedAtDesc(Boolean published);
+
+    List<Post> findByPublishedOrderByWeightDescPublishedAtDesc(Boolean published);
 }

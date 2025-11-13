@@ -3,12 +3,18 @@ type Query {
     post(id: ID!): Post
     categories: [String!]!
     tags: [String!]!
+    modules: [String!]!
+    trendingPosts(limit: Int): [Post!]!
+    guestPosts(status: String): [Post!]!
 }
 
 type Mutation {
     createPost(input: PostInput!): Post!
     updatePost(id: ID!, input: PostInput!): Post!
     deletePost(id: ID!): Boolean!
+    reactToPost(postId: ID!, reactionType: String!, emoji: String, userId: Int!): Post!
+    approveGuestPost(postId: ID!): Post!
+    rejectGuestPost(postId: ID!): Post!
 }
 
 type Post {
@@ -20,17 +26,37 @@ type Post {
     author: Author!
     tags: [String!]
     category: String
+    module: String
     published: Boolean!
     publishedAt: String
     createdAt: String!
     updatedAt: String!
     views: Int
+    weight: Int
+    reactions: Reactions
+    isGuestPost: Boolean
+    guestAuthorEmail: String
+    guestAuthorStatus: String
+    trendingScore: Float
 }
 
 type Author {
     id: Int!
     name: String!
     email: String!
+}
+
+type Reactions {
+    likes: Int!
+    upvotes: Int!
+    emojis: [EmojiCount!]
+    userLikes: [Int!]
+    userUpvotes: [Int!]
+}
+
+type EmojiCount {
+    emoji: String!
+    count: Int!
 }
 
 input PostInput {
@@ -40,13 +66,21 @@ input PostInput {
     content: String!
     tags: [String!]
     category: String
+    module: String
     published: Boolean
+    weight: Int
+    isGuestPost: Boolean
+    guestAuthorEmail: String
 }
 
 input PostFilters {
     published: Boolean
     category: String
     tag: String
+    module: String
     search: String
     limit: Int
+    sortBy: String
+    isGuestPost: Boolean
+    guestAuthorStatus: String
 }
