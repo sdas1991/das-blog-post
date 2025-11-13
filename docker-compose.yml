@@ -25,6 +25,7 @@ services:
     environment:
       - PORT=3001
       - NODE_ENV=development
+      - APP_MODE=${APP_MODE:-dev}
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=auth_db
@@ -32,12 +33,21 @@ services:
       - DB_PASSWORD=postgres
       - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
       - JWT_EXPIRES_IN=7d
+      - MAX_FILE_SIZE=5242880
+      # Dev Mode - MongoDB GridFS for file storage
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=auth_storage_db
+      # Release Mode - AWS S3 (only used when APP_MODE=release)
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
     depends_on:
       - postgres
+      - mongodb
     networks:
       - app-network
-    volumes:
-      - ./backend/auth-service/uploads:/app/uploads
 
   # Blog Service - Java Spring Boot with GraphQL
   blog-service:

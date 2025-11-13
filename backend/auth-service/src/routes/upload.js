@@ -3,17 +3,13 @@ const router = express.Router()
 const multer = require('multer')
 const path = require('path')
 const authMiddleware = require('../middleware/auth')
+const StorageFactory = require('../services/storage/StorageFactory')
 
-// Configure multer for file upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/')
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, uniqueSuffix + path.extname(file.originalname))
-  }
-})
+// Initialize storage service (GridFS for dev, S3 for release)
+const storageService = StorageFactory.createStorage()
+
+// Configure multer for memory storage (files handled by storage service)
+const storage = multer.memoryStorage()
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/
@@ -35,23 +31,64 @@ const upload = multer({
   }
 })
 
-router.post('/', authMiddleware, upload.single('file'), (req, res) => {
+// Upload file endpoint
+router.post('/', authMiddleware, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' })
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`
+    // Upload file using storage service
+    const result = await storageService.uploadFile(
+      req.file.buffer,
+      req.file.originalname,
+      req.file.mimetype
+    )
 
     res.json({
       message: 'File uploaded successfully',
-      url: fileUrl,
-      filename: req.file.filename,
-      size: req.file.size
+      url: result.url,
+      filename: result.filename,
+      fileId: result.fileId,
+      size: result.size
     })
   } catch (error) {
     console.error('Upload error:', error)
-    res.status(500).json({ message: 'File upload failed' })
+    res.status(500).json({ message: 'File upload failed', error: error.message })
+  }
+})
+
+// Download file endpoint (primarily for dev mode with GridFS)
+router.get('/files/:fileId', async (req, res) => {
+  try {
+    const { fileId } = req.params
+
+    const file = await storageService.downloadFile(fileId)
+
+    res.setHeader('Content-Type', file.mimetype)
+    res.setHeader('Content-Disposition', `inline; filename="${file.filename}"`)
+    res.send(file.buffer)
+  } catch (error) {
+    console.error('Download error:', error)
+    res.status(404).json({ message: 'File not found', error: error.message })
+  }
+})
+
+// Delete file endpoint
+router.delete('/files/:fileId', authMiddleware, async (req, res) => {
+  try {
+    const { fileId } = req.params
+
+    const success = await storageService.deleteFile(fileId)
+
+    if (success) {
+      res.json({ message: 'File deleted successfully' })
+    } else {
+      res.status(404).json({ message: 'File not found or already deleted' })
+    }
+  } catch (error) {
+    console.error('Delete error:', error)
+    res.status(500).json({ message: 'File deletion failed', error: error.message })
   }
 })
 

@@ -7,8 +7,6 @@ RUN npm install
 
 COPY . .
 
-RUN mkdir -p uploads
-
 EXPOSE 3001
 
 CMD ["npm", "start"]

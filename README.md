@@ -53,6 +53,29 @@ This platform consists of:
 - Java 17+ (for local backend development)
 - Maven 3.9+ (for building Java/Kotlin services)
 
+## Application Modes
+
+This application supports two deployment modes:
+
+### 🔧 Dev Mode (Default)
+- **Purpose**: Local development with zero AWS dependencies
+- **File Storage**: MongoDB GridFS (stored in local Docker container)
+- **Databases**: All databases run in local Docker containers
+- **Benefits**:
+  - No AWS account required
+  - No cloud costs
+  - Fully isolated local environment
+  - Fast iteration and testing
+
+### 🚀 Release Mode
+- **Purpose**: Production deployment with AWS services
+- **File Storage**: AWS S3
+- **Databases**: Can use AWS RDS, MongoDB Atlas, or self-hosted
+- **Benefits**:
+  - Scalable cloud infrastructure
+  - Production-grade file storage
+  - CDN integration available
+
 ## Quick Start
 
 ### 1. Clone the Repository
@@ -62,7 +85,17 @@ git clone <repository-url>
 cd das-blog-post
 ```
 
-### 2. Start All Services with Docker Compose
+### 2. Configure Environment Variables
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and ensure APP_MODE is set to 'dev' for local development
+# APP_MODE=dev
+```
+
+### 3. Start All Services with Docker Compose (Dev Mode)
 
 ```bash
 docker-compose up --build
@@ -75,14 +108,43 @@ This will start:
   - GraphiQL: http://localhost:3002/graphiql
 - Portfolio Service: http://localhost:3003
 - PostgreSQL: localhost:5432
-- MongoDB: localhost:27017
+- MongoDB: localhost:27017 (also used for file storage in dev mode)
 - MySQL: localhost:3306
 
-### 3. Access the Application
+### 4. Access the Application
 
 - **Frontend**: http://localhost:3000
 - **Admin Panel**: http://localhost:3000/admin (after login)
 - **GraphiQL Playground**: http://localhost:3002/graphiql
+
+### Running in Release Mode
+
+To run the application in release mode with AWS services:
+
+1. **Configure AWS credentials in `.env`**:
+```env
+APP_MODE=release
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-s3-bucket-name
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+```
+
+2. **Ensure AWS S3 bucket exists and is configured**:
+```bash
+# Create S3 bucket (if not exists)
+aws s3 mb s3://your-s3-bucket-name --region us-east-1
+
+# Configure bucket for public read access (optional)
+aws s3api put-bucket-cors --bucket your-s3-bucket-name --cors-configuration file://cors.json
+```
+
+3. **Start services with release mode**:
+```bash
+docker-compose up --build
+```
+
+The application will automatically use AWS S3 for file uploads instead of MongoDB GridFS.
 
 ## Local Development
 
@@ -135,6 +197,10 @@ mvn spring-boot:run
 - `POST /comments` - Create a comment (requires authentication)
 - `DELETE /comments/:commentId` - Delete a comment (requires authentication)
 - `POST /upload` - Upload a file (requires authentication)
+  - **Dev Mode**: Stores in MongoDB GridFS
+  - **Release Mode**: Stores in AWS S3
+- `GET /files/:fileId` - Download a file (dev mode with GridFS)
+- `DELETE /files/:fileId` - Delete a file (requires authentication)
 
 ### Blog Service (GraphQL API)
 
@@ -201,17 +267,50 @@ mutation {
 
 ## Environment Variables
 
+### Global Configuration
+
+```env
+# Application mode: 'dev' or 'release'
+APP_MODE=dev
+
+# Service ports
+AUTH_SERVICE_PORT=3001
+BLOG_SERVICE_PORT=3002
+PORTFOLIO_SERVICE_PORT=3003
+FRONTEND_PORT=3000
+```
+
 ### Auth Service
 
 ```env
 PORT=3001
+NODE_ENV=development
+APP_MODE=dev
+
+# PostgreSQL Database
 DB_HOST=postgres
 DB_PORT=5432
 DB_NAME=auth_db
 DB_USER=postgres
 DB_PASSWORD=postgres
+
+# JWT Configuration
 JWT_SECRET=your-secret-key
 JWT_EXPIRES_IN=7d
+
+# File Upload Configuration
+MAX_FILE_SIZE=5242880
+
+# Dev Mode - MongoDB GridFS
+MONGODB_HOST=mongodb
+MONGODB_PORT=27017
+MONGODB_DATABASE=auth_storage_db
+
+# Release Mode - AWS S3 (only required when APP_MODE=release)
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=your-bucket-name
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
 ```
 
 ### Blog Service
@@ -303,6 +402,86 @@ MYSQL_PASSWORD=root
 - email (VARCHAR)
 - message (TEXT)
 - created_at (DATETIME)
+
+## Storage Architecture
+
+### File Upload System
+
+The application uses a **Storage Service Abstraction** pattern that automatically switches between storage backends based on the `APP_MODE` environment variable:
+
+```
+┌─────────────────────────────────────────┐
+│         Upload Route Handler            │
+│      (routes/upload.js)                 │
+└─────────────────┬───────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────┐
+│       Storage Factory                   │
+│   (services/storage/StorageFactory.js)  │
+│                                         │
+│   if (APP_MODE === 'release')          │
+│      return S3Storage                   │
+│   else                                  │
+│      return GridFSStorage               │
+└─────────┬──────────────┬────────────────┘
+          │              │
+    ┌─────▼──────┐  ┌───▼──────────┐
+    │  Dev Mode  │  │ Release Mode │
+    │  GridFS    │  │   AWS S3     │
+    │  Storage   │  │   Storage    │
+    └────────────┘  └──────────────┘
+         │                 │
+    ┌────▼─────┐     ┌────▼─────┐
+    │ MongoDB  │     │  AWS S3  │
+    │  Docker  │     │  Bucket  │
+    └──────────┘     └──────────┘
+```
+
+### Dev Mode Storage (MongoDB GridFS)
+
+**Benefits**:
+- No external dependencies
+- No AWS account needed
+- Zero cloud costs
+- Files stored in MongoDB container
+- Automatic cleanup when containers are removed
+- Fast local development
+
+**Technical Details**:
+- Files stored in `uploads.files` and `uploads.chunks` collections
+- Database: `auth_storage_db`
+- Access via: `/api/auth/files/:fileId`
+- Supports all file operations (upload, download, delete)
+
+### Release Mode Storage (AWS S3)
+
+**Benefits**:
+- Scalable cloud storage
+- CDN integration ready
+- Persistent storage
+- Production-grade reliability
+- Global availability
+
+**Technical Details**:
+- Files stored in S3 bucket
+- Region: Configurable (default: us-east-1)
+- Access via: Public S3 URLs or pre-signed URLs
+- IAM permissions required for access
+
+### Switching Between Modes
+
+Simply change the `APP_MODE` environment variable:
+
+```bash
+# For local development
+APP_MODE=dev docker-compose up
+
+# For production
+APP_MODE=release docker-compose up
+```
+
+No code changes required - the application automatically adapts!
 
 ## Features
 
