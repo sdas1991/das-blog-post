@@ -1,0 +1,367 @@
+/* ============================================
+   THEME SYSTEM - Blog Post Themes
+   ============================================ */
+
+/* Default Theme Variables */
+:root {
+  /* Default Theme */
+  --theme-default-bg: #ffffff;
+  --theme-default-text: #333333;
+  --theme-default-heading: #2c3e50;
+  --theme-default-accent: #42b983;
+  --theme-default-border: #e0e0e0;
+  --theme-default-code-bg: #f5f5f5;
+  --theme-default-link: #42b983;
+
+  /* Dark Theme */
+  --theme-dark-bg: #1a1a1a;
+  --theme-dark-text: #e0e0e0;
+  --theme-dark-heading: #ffffff;
+  --theme-dark-accent: #64b5f6;
+  --theme-dark-border: #333333;
+  --theme-dark-code-bg: #2d2d2d;
+  --theme-dark-link: #64b5f6;
+
+  /* Ocean Theme */
+  --theme-ocean-bg: #e3f2fd;
+  --theme-ocean-text: #1565c0;
+  --theme-ocean-heading: #0d47a1;
+  --theme-ocean-accent: #0288d1;
+  --theme-ocean-border: #90caf9;
+  --theme-ocean-code-bg: #bbdefb;
+  --theme-ocean-link: #0277bd;
+
+  /* Sunset Theme */
+  --theme-sunset-bg: #fff3e0;
+  --theme-sunset-text: #e65100;
+  --theme-sunset-heading: #bf360c;
+  --theme-sunset-accent: #ff6f00;
+  --theme-sunset-border: #ffccbc;
+  --theme-sunset-code-bg: #ffe0b2;
+  --theme-sunset-link: #f57c00;
+
+  /* Forest Theme */
+  --theme-forest-bg: #e8f5e9;
+  --theme-forest-text: #2e7d32;
+  --theme-forest-heading: #1b5e20;
+  --theme-forest-accent: #43a047;
+  --theme-forest-border: #a5d6a7;
+  --theme-forest-code-bg: #c8e6c9;
+  --theme-forest-link: #388e3c;
+
+  /* Purple Theme */
+  --theme-purple-bg: #f3e5f5;
+  --theme-purple-text: #6a1b9a;
+  --theme-purple-heading: #4a148c;
+  --theme-purple-accent: #8e24aa;
+  --theme-purple-border: #ce93d8;
+  --theme-purple-code-bg: #e1bee7;
+  --theme-purple-link: #7b1fa2;
+
+  /* Minimal Theme */
+  --theme-minimal-bg: #fafafa;
+  --theme-minimal-text: #424242;
+  --theme-minimal-heading: #212121;
+  --theme-minimal-accent: #757575;
+  --theme-minimal-border: #e0e0e0;
+  --theme-minimal-code-bg: #eeeeee;
+  --theme-minimal-link: #616161;
+
+  /* Warm Theme */
+  --theme-warm-bg: #fff8e1;
+  --theme-warm-text: #5d4037;
+  --theme-warm-heading: #3e2723;
+  --theme-warm-accent: #d84315;
+  --theme-warm-border: #ffccbc;
+  --theme-warm-code-bg: #ffe0b2;
+  --theme-warm-link: #e64a19;
+}
+
+/* Theme Classes */
+.blog-theme-default {
+  background-color: var(--theme-default-bg);
+  color: var(--theme-default-text);
+}
+
+.blog-theme-default h1,
+.blog-theme-default h2,
+.blog-theme-default h3,
+.blog-theme-default h4,
+.blog-theme-default h5,
+.blog-theme-default h6 {
+  color: var(--theme-default-heading);
+}
+
+.blog-theme-default a {
+  color: var(--theme-default-link);
+}
+
+.blog-theme-default pre,
+.blog-theme-default code {
+  background-color: var(--theme-default-code-bg);
+}
+
+.blog-theme-default blockquote {
+  border-left: 4px solid var(--theme-default-accent);
+  background-color: var(--theme-default-code-bg);
+}
+
+/* Dark Theme */
+.blog-theme-dark {
+  background-color: var(--theme-dark-bg);
+  color: var(--theme-dark-text);
+}
+
+.blog-theme-dark h1,
+.blog-theme-dark h2,
+.blog-theme-dark h3,
+.blog-theme-dark h4,
+.blog-theme-dark h5,
+.blog-theme-dark h6 {
+  color: var(--theme-dark-heading);
+}
+
+.blog-theme-dark a {
+  color: var(--theme-dark-link);
+}
+
+.blog-theme-dark pre,
+.blog-theme-dark code {
+  background-color: var(--theme-dark-code-bg);
+  color: var(--theme-dark-text);
+}
+
+.blog-theme-dark blockquote {
+  border-left: 4px solid var(--theme-dark-accent);
+  background-color: var(--theme-dark-code-bg);
+}
+
+/* Ocean Theme */
+.blog-theme-ocean {
+  background-color: var(--theme-ocean-bg);
+  color: var(--theme-ocean-text);
+}
+
+.blog-theme-ocean h1,
+.blog-theme-ocean h2,
+.blog-theme-ocean h3,
+.blog-theme-ocean h4,
+.blog-theme-ocean h5,
+.blog-theme-ocean h6 {
+  color: var(--theme-ocean-heading);
+}
+
+.blog-theme-ocean a {
+  color: var(--theme-ocean-link);
+}
+
+.blog-theme-ocean pre,
+.blog-theme-ocean code {
+  background-color: var(--theme-ocean-code-bg);
+  color: var(--theme-ocean-text);
+}
+
+.blog-theme-ocean blockquote {
+  border-left: 4px solid var(--theme-ocean-accent);
+  background-color: var(--theme-ocean-code-bg);
+}
+
+/* Sunset Theme */
+.blog-theme-sunset {
+  background-color: var(--theme-sunset-bg);
+  color: var(--theme-sunset-text);
+}
+
+.blog-theme-sunset h1,
+.blog-theme-sunset h2,
+.blog-theme-sunset h3,
+.blog-theme-sunset h4,
+.blog-theme-sunset h5,
+.blog-theme-sunset h6 {
+  color: var(--theme-sunset-heading);
+}
+
+.blog-theme-sunset a {
+  color: var(--theme-sunset-link);
+}
+
+.blog-theme-sunset pre,
+.blog-theme-sunset code {
+  background-color: var(--theme-sunset-code-bg);
+  color: var(--theme-sunset-text);
+}
+
+.blog-theme-sunset blockquote {
+  border-left: 4px solid var(--theme-sunset-accent);
+  background-color: var(--theme-sunset-code-bg);
+}
+
+/* Forest Theme */
+.blog-theme-forest {
+  background-color: var(--theme-forest-bg);
+  color: var(--theme-forest-text);
+}
+
+.blog-theme-forest h1,
+.blog-theme-forest h2,
+.blog-theme-forest h3,
+.blog-theme-forest h4,
+.blog-theme-forest h5,
+.blog-theme-forest h6 {
+  color: var(--theme-forest-heading);
+}
+
+.blog-theme-forest a {
+  color: var(--theme-forest-link);
+}
+
+.blog-theme-forest pre,
+.blog-theme-forest code {
+  background-color: var(--theme-forest-code-bg);
+  color: var(--theme-forest-text);
+}
+
+.blog-theme-forest blockquote {
+  border-left: 4px solid var(--theme-forest-accent);
+  background-color: var(--theme-forest-code-bg);
+}
+
+/* Purple Theme */
+.blog-theme-purple {
+  background-color: var(--theme-purple-bg);
+  color: var(--theme-purple-text);
+}
+
+.blog-theme-purple h1,
+.blog-theme-purple h2,
+.blog-theme-purple h3,
+.blog-theme-purple h4,
+.blog-theme-purple h5,
+.blog-theme-purple h6 {
+  color: var(--theme-purple-heading);
+}
+
+.blog-theme-purple a {
+  color: var(--theme-purple-link);
+}
+
+.blog-theme-purple pre,
+.blog-theme-purple code {
+  background-color: var(--theme-purple-code-bg);
+  color: var(--theme-purple-text);
+}
+
+.blog-theme-purple blockquote {
+  border-left: 4px solid var(--theme-purple-accent);
+  background-color: var(--theme-purple-code-bg);
+}
+
+/* Minimal Theme */
+.blog-theme-minimal {
+  background-color: var(--theme-minimal-bg);
+  color: var(--theme-minimal-text);
+}
+
+.blog-theme-minimal h1,
+.blog-theme-minimal h2,
+.blog-theme-minimal h3,
+.blog-theme-minimal h4,
+.blog-theme-minimal h5,
+.blog-theme-minimal h6 {
+  color: var(--theme-minimal-heading);
+}
+
+.blog-theme-minimal a {
+  color: var(--theme-minimal-link);
+}
+
+.blog-theme-minimal pre,
+.blog-theme-minimal code {
+  background-color: var(--theme-minimal-code-bg);
+  color: var(--theme-minimal-text);
+}
+
+.blog-theme-minimal blockquote {
+  border-left: 4px solid var(--theme-minimal-accent);
+  background-color: var(--theme-minimal-code-bg);
+}
+
+/* Warm Theme */
+.blog-theme-warm {
+  background-color: var(--theme-warm-bg);
+  color: var(--theme-warm-text);
+}
+
+.blog-theme-warm h1,
+.blog-theme-warm h2,
+.blog-theme-warm h3,
+.blog-theme-warm h4,
+.blog-theme-warm h5,
+.blog-theme-warm h6 {
+  color: var(--theme-warm-heading);
+}
+
+.blog-theme-warm a {
+  color: var(--theme-warm-link);
+}
+
+.blog-theme-warm pre,
+.blog-theme-warm code {
+  background-color: var(--theme-warm-code-bg);
+  color: var(--theme-warm-text);
+}
+
+.blog-theme-warm blockquote {
+  border-left: 4px solid var(--theme-warm-accent);
+  background-color: var(--theme-warm-code-bg);
+}
+
+/* Common theme styling */
+[class*="blog-theme-"] {
+  padding: 2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+[class*="blog-theme-"] pre {
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+[class*="blog-theme-"] code {
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+[class*="blog-theme-"] blockquote {
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+[class*="blog-theme-"] img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+[class*="blog-theme-"] table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+[class*="blog-theme-"] table th,
+[class*="blog-theme-"] table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.7;
+}
+
+[class*="blog-theme-"] table th {
+  font-weight: bold;
+  opacity: 1;
+}

@@ -9,6 +9,7 @@
           <router-link to="/">Home</router-link>
           <router-link to="/blog">Blog</router-link>
           <router-link to="/portfolio">Portfolio</router-link>
+          <router-link to="/profile">Profile</router-link>
           <router-link v-if="!isAuthenticated" to="/login">Login</router-link>
           <template v-else>
             <router-link to="/admin">Admin</router-link>

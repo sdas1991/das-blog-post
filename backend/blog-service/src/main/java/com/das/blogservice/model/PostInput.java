@@ -13,4 +13,5 @@ public class PostInput {
     private List<String> tags;
     private String category;
     private Boolean published;
+    private String theme;
 }

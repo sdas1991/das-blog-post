@@ -28,6 +28,21 @@
       </div>
 
       <div class="form-group">
+        <label>Theme</label>
+        <select v-model="post.theme">
+          <option value="">Default</option>
+          <option value="dark">Dark</option>
+          <option value="ocean">Ocean</option>
+          <option value="sunset">Sunset</option>
+          <option value="forest">Forest</option>
+          <option value="purple">Purple</option>
+          <option value="minimal">Minimal</option>
+          <option value="warm">Warm</option>
+        </select>
+        <small>Choose a visual theme for this blog post</small>
+      </div>
+
+      <div class="form-group">
         <label>Excerpt</label>
         <textarea v-model="post.excerpt" rows="3" placeholder="Brief summary of the post"></textarea>
         <small>Short description shown in post listings</small>
@@ -79,7 +94,8 @@ const post = ref({
   content: '',
   category: '',
   tags: [],
-  published: false
+  published: false,
+  theme: ''
 })
 
 const tagsInput = ref('')
@@ -100,7 +116,8 @@ onMounted(async () => {
         content: existingPost.content,
         category: existingPost.category || '',
         tags: existingPost.tags || [],
-        published: existingPost.published
+        published: existingPost.published,
+        theme: existingPost.theme || ''
       }
       tagsInput.value = existingPost.tags ? existingPost.tags.join(', ') : ''
     } else {

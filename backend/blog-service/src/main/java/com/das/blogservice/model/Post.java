@@ -28,6 +28,7 @@ public class Post {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer views;
+    private String theme; // Theme for the blog post (e.g., "default", "dark", "ocean", "sunset")
 
     @Data
     @NoArgsConstructor

@@ -98,6 +98,8 @@ export const blogService = {
           publishedAt
           createdAt
           updatedAt
+          views
+          theme
         }
       }
     `
@@ -128,6 +130,8 @@ export const blogService = {
           publishedAt
           createdAt
           updatedAt
+          views
+          theme
         }
       }
     `
@@ -152,6 +156,7 @@ export const blogService = {
           published
           publishedAt
           createdAt
+          theme
         }
       }
     `
@@ -176,6 +181,7 @@ export const blogService = {
           published
           publishedAt
           updatedAt
+          theme
         }
       }
     `

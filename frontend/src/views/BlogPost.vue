@@ -2,7 +2,7 @@
   <div class="blog-post">
     <div v-if="loading" class="loading">Loading...</div>
     <div v-else-if="post" class="post-content">
-      <article class="card">
+      <article class="card post-header">
         <h1>{{ post.title }}</h1>
         <div class="post-meta">
           <span class="post-author">By {{ post.author?.name || 'Anonymous' }}</span>
@@ -12,6 +12,9 @@
         <div v-if="post.tags && post.tags.length" class="post-tags">
           <span v-for="tag in post.tags" :key="tag" class="tag">{{ tag }}</span>
         </div>
+      </article>
+
+      <article :class="['post-body-wrapper', getThemeClass(post.theme)]">
         <div class="post-body" v-html="post.content"></div>
       </article>
 
@@ -100,6 +103,11 @@ const formatDate = (date) => {
     day: 'numeric'
   })
 }
+
+const getThemeClass = (theme) => {
+  if (!theme) return 'blog-theme-default'
+  return `blog-theme-${theme}`
+}
 </script>
 
 <style scoped>
@@ -108,9 +116,17 @@ const formatDate = (date) => {
   margin: 0 auto;
 }
 
-.post-content h1 {
+.post-header {
+  margin-bottom: 1.5rem;
+}
+
+.post-header h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
+}
+
+.post-body-wrapper {
+  margin-bottom: 2rem;
 }
 
 .post-meta {
@@ -150,7 +166,6 @@ const formatDate = (date) => {
 .post-body {
   line-height: 1.8;
   font-size: 1.1rem;
-  margin-top: 2rem;
 }
 
 .post-body :deep(h1),
@@ -163,20 +178,14 @@ const formatDate = (date) => {
   margin: 1rem 0;
 }
 
-.post-body :deep(pre) {
-  background: #282c34;
-  color: #abb2bf;
-  padding: 1rem;
-  border-radius: 4px;
-  overflow-x: auto;
+.post-body :deep(ul),
+.post-body :deep(ol) {
   margin: 1rem 0;
+  padding-left: 2rem;
 }
 
-.post-body :deep(img) {
-  max-width: 100%;
-  height: auto;
-  border-radius: 4px;
-  margin: 1rem 0;
+.post-body :deep(li) {
+  margin: 0.5rem 0;
 }
 
 .comments-section {

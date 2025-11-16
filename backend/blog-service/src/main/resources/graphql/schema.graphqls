@@ -25,6 +25,7 @@ type Post {
     createdAt: String!
     updatedAt: String!
     views: Int
+    theme: String
 }
 
 type Author {
@@ -41,6 +42,7 @@ input PostInput {
     tags: [String!]
     category: String
     published: Boolean
+    theme: String
 }
 
 input PostFilters {
