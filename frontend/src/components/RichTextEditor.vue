@@ -159,7 +159,9 @@ import TableRow from '@tiptap/extension-table-row'
 import TableCell from '@tiptap/extension-table-cell'
 import TableHeader from '@tiptap/extension-table-header'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
-import { lowlight } from 'lowlight'
+import { common, createLowlight } from 'lowlight'
+
+const lowlight = createLowlight(common)
 
 const props = defineProps({
   modelValue: {
