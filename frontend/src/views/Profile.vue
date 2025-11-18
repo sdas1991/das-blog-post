@@ -12,14 +12,6 @@
             Senior Software Engineer with 7+ years of experience architecting scalable microservices,
             modernizing APIs through REST-to-GraphQL migration and implementing reactive systems with RxJava.
           </p>
-          <div class="profile-contact">
-            <a href="tel:+14094446236" class="contact-item">
-              <span>📞 (409) 444-6236</span>
-            </a>
-            <a href="mailto:sourangshu.das01@gmail.com" class="contact-item">
-              <span>✉️ sourangshu.das01@gmail.com</span>
-            </a>
-          </div>
           <div class="profile-social">
             <a href="https://www.linkedin.com/in/sourangshu-das-548ba4129" target="_blank" class="social-link">
               <span>LinkedIn</span>
@@ -281,7 +273,7 @@ const downloadResume = () => {
   y += 8
   doc.setFontSize(bodySize)
   doc.setFont('helvetica', 'normal')
-  doc.text('(409) 444-6236 | sourangshu.das01@gmail.com', margin, y)
+  doc.text('sourangshu.das01@gmail.com', margin, y)
 
   y += 5
   doc.setTextColor(0, 0, 255)
@@ -523,23 +515,6 @@ const downloadResume = () => {
   line-height: 1.7;
   margin-bottom: 1.5rem;
   color: rgba(255, 255, 255, 0.9);
-}
-
-.profile-contact {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.contact-item {
-  color: rgba(255, 255, 255, 0.95);
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-
-.contact-item:hover {
-  color: #a0c4ff;
 }
 
 .profile-social {
@@ -820,11 +795,6 @@ const downloadResume = () => {
 
   .profile-title {
     font-size: 1.2rem;
-  }
-
-  .profile-contact {
-    flex-direction: column;
-    align-items: center;
   }
 
   .profile-social {

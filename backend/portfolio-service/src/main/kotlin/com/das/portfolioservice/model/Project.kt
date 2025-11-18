@@ -16,9 +16,19 @@ data class Project(
     @Column(columnDefinition = "TEXT")
     var description: String,
 
+    @Column(columnDefinition = "TEXT")
+    var summary: String? = null,
+
     var imageUrl: String? = null,
+
+    @ElementCollection
+    @CollectionTable(name = "project_images", joinColumns = [JoinColumn(name = "project_id")])
+    @Column(name = "image_url")
+    var projectImages: MutableList<String> = mutableListOf(),
+
     var liveUrl: String? = null,
     var githubUrl: String? = null,
+    var featured: Boolean = false,
 
     @ElementCollection
     @CollectionTable(name = "project_technologies", joinColumns = [JoinColumn(name = "project_id")])

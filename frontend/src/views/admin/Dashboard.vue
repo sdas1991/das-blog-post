@@ -5,12 +5,36 @@
     <div class="dashboard-actions">
       <router-link to="/admin/blog/new" class="btn btn-primary">Create New Post</router-link>
       <router-link to="/admin/portfolio" class="btn btn-secondary">Manage Portfolio</router-link>
+      <router-link to="/admin/profile" class="btn btn-info">Manage Profile</router-link>
     </div>
 
     <section class="posts-section">
-      <h2>Your Blog Posts</h2>
+      <div class="section-header">
+        <h2>Your Blog Posts</h2>
+        <div class="filter-tabs">
+          <button
+            :class="['filter-btn', { active: filter === 'all' }]"
+            @click="filter = 'all'"
+          >
+            All ({{ posts.length }})
+          </button>
+          <button
+            :class="['filter-btn', { active: filter === 'published' }]"
+            @click="filter = 'published'"
+          >
+            Published ({{ publishedCount }})
+          </button>
+          <button
+            :class="['filter-btn', { active: filter === 'draft' }]"
+            @click="filter = 'draft'"
+          >
+            Drafts ({{ draftCount }})
+          </button>
+        </div>
+      </div>
+
       <div v-if="loading" class="loading">Loading...</div>
-      <div v-else-if="posts.length" class="posts-table">
+      <div v-else-if="filteredPosts.length" class="posts-table">
         <table>
           <thead>
             <tr>
@@ -22,7 +46,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="post in posts" :key="post.id">
+            <tr v-for="post in filteredPosts" :key="post.id">
               <td>{{ post.title }}</td>
               <td>
                 <span :class="['status-badge', post.published ? 'status-published' : 'status-draft']">
@@ -35,23 +59,43 @@
                 <router-link :to="`/blog/${post.id}`" class="btn-small btn-secondary">View</router-link>
                 <router-link :to="`/admin/blog/edit/${post.id}`" class="btn-small btn-primary">Edit</router-link>
                 <button @click="handleDelete(post.id)" class="btn-small btn-danger">Delete</button>
+                <button
+                  @click="togglePublish(post)"
+                  class="btn-small"
+                  :class="post.published ? 'btn-warning' : 'btn-success'"
+                >
+                  {{ post.published ? 'Unpublish' : 'Publish' }}
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p v-else>No posts yet. Create your first post!</p>
+      <p v-else>No {{ filter === 'all' ? '' : filter }} posts yet.</p>
     </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBlogStore } from '../../stores/blog'
 
 const blogStore = useBlogStore()
 const posts = ref([])
 const loading = ref(false)
+const filter = ref('all')
+
+const filteredPosts = computed(() => {
+  if (filter.value === 'published') {
+    return posts.value.filter(p => p.published)
+  } else if (filter.value === 'draft') {
+    return posts.value.filter(p => !p.published)
+  }
+  return posts.value
+})
+
+const publishedCount = computed(() => posts.value.filter(p => p.published).length)
+const draftCount = computed(() => posts.value.filter(p => !p.published).length)
 
 onMounted(async () => {
   loading.value = true
@@ -70,6 +114,36 @@ const handleDelete = async (id) => {
     posts.value = posts.value.filter(p => p.id !== id)
   } else {
     alert('Failed to delete post')
+  }
+}
+
+const togglePublish = async (post) => {
+  const newStatus = !post.published
+  const action = newStatus ? 'publish' : 'unpublish'
+
+  if (!confirm(`Are you sure you want to ${action} this post?`)) {
+    return
+  }
+
+  try {
+    // Update the post with new published status
+    const updatedPost = { ...post, published: newStatus }
+    if (newStatus && !post.publishedAt) {
+      updatedPost.publishedAt = new Date().toISOString()
+    }
+
+    const success = await blogStore.updatePost(post.id, updatedPost)
+    if (success) {
+      post.published = newStatus
+      if (newStatus && !post.publishedAt) {
+        post.publishedAt = new Date().toISOString()
+      }
+    } else {
+      alert(`Failed to ${action} post`)
+    }
+  } catch (error) {
+    console.error(`Error ${action}ing post:`, error)
+    alert(`Failed to ${action} post`)
   }
 }
 
@@ -92,6 +166,45 @@ const formatDate = (date) => {
   display: flex;
   gap: 1rem;
   margin-bottom: 3rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background: #f0f0f0;
+}
+
+.filter-btn.active {
+  background: #2c5282;
+  color: white;
+  border-color: #2c5282;
 }
 
 .posts-section h2 {
@@ -172,7 +285,22 @@ td {
   color: white;
 }
 
+.btn-small.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-small.btn-warning {
+  background: #ffc107;
+  color: #333;
+}
+
 .btn-small:hover {
   opacity: 0.9;
+}
+
+.btn.btn-info {
+  background: #17a2b8;
+  color: white;
 }
 </style>
